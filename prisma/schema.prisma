@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Fruit {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  firstEpisode Int
+  firstChapter Int
+
+  fruitCharacterHistory FruitCharacterHistory[]
+  character             Character[]
+
+  @@map("fruits")
+}
+
+model Character {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  firstEpisode Int
+  firstChapter Int
+  fruitId      String? @db.ObjectId
+  isAlive      Boolean
+  deathEpisode Int?
+  deathChapter Int?
+
+  fruit                 Fruit?                  @relation(fields: [fruitId], references: [id])
+  FruitCharacterHistory FruitCharacterHistory[]
+
+  @@map("characters")
+}
+
+model FruitCharacterHistory {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  fruitId      String? @db.ObjectId
+  characterId  String? @db.ObjectId
+  firstEpisode Int
+  firstChapter Int
+  lastEpisode  Int?
+  lastChapter  Int?
+
+  fruit     Fruit?     @relation(fields: [fruitId], references: [id])
+  character Character? @relation(fields: [characterId], references: [id])
+
+  @@map("fruitCharacterHistory")
+}
